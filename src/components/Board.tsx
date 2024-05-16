@@ -50,15 +50,7 @@ export const Board: React.FC = () => {
                   onClick={() => {
                     onClick(cell);
                   }}
-                  style={
-                    cell.mine
-                      ? {
-                          background: "#f0f0f0",
-                        }
-                      : {
-                          background: "transparent",
-                        }
-                  }
+                  block={cell}
                 >
                   {/* {cell.mine ? "💣" : `(x:${cell.x},y:${cell.y})`} */}
                   {cell.mine ? "💣" : cell.adjacentMines}

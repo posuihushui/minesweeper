@@ -6,25 +6,41 @@ import {
   generateBlock,
   siblings,
 } from "@/core/game";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useReducer } from "react";
 
 interface GameState {
   mineGenerated: boolean;
   status: GameStatus;
   blocks: BlockState[][];
 }
+type ValueOfType<T, K> = K extends keyof T ? T[K] : never;
+
+interface Action {
+  type: keyof GameState;
+  payload: ValueOfType<GameState, keyof GameState>;
+}
 interface ReturnType extends GameState {
   onClick: (coords: BlockState) => void;
   onContextMenu: (coords: BlockState) => void;
 }
+const reducer = (state: GameState, action: Action) => {
+  return {
+    ...state,
+    [action.type]: action.payload,
+  };
+};
+const getInitals = (row: number, col: number) => {
+  return {
+    mineGenerated: false,
+    status: "ready" as GameStatus,
+    blocks: generateBlock(row, col),
+  };
+};
 
 export const useGame = (level = "beginner" as LevelNames): ReturnType => {
   const [row, col, mines] = GameSettings[level];
-  const [state, setState] = useState<GameState>({
-    mineGenerated: false,
-    status: "ready",
-    blocks: generateBlock(row, col),
-  });
+  const [state, dispatch] = useReducer(reducer, getInitals(row, col));
+
   const getSiblings = (
     block: BlockState,
     newBlocksWithMines: BlockState[][]
@@ -47,8 +63,26 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
       };
     }
   };
+  const setNewBlock = (
+    block: BlockState,
+    newAttrs: Partial<BlockState>,
+    blocks: BlockState[][]
+  ) => {
+    return blocks.map((row: BlockState[]) => {
+      return row.map((cell: BlockState) => {
+        if (block.x === cell.x && block.y === cell.y) {
+          return { ...cell, ...newAttrs };
+        } else {
+          return cell;
+        }
+      });
+    });
+  };
 
-  const expendZero = (block: BlockState) => {};
+  const expendZero = (block: BlockState, list: BlockState[][]) => {
+    return list;
+  };
+
   const generateMines = (clickedBlock: BlockState) => {
     // 生成地雷
     const minesList: { x: number; y: number }[] = [];
@@ -82,34 +116,46 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
         });
       }
     );
-
-    setState({
-      ...state,
-      mineGenerated: true,
-      blocks: newBlocksWithSiblings,
-    });
+    return newBlocksWithSiblings;
   };
   const onClick = (block: BlockState) => {
-    if (state.status === "ready") {
-      setState({ ...state, status: "play" });
-    }
+    let list: BlockState[][] = state.blocks;
     if (!state.mineGenerated) {
-      generateMines(block);
+      list = generateMines(block);
+      dispatch({ type: "mineGenerated", payload: true });
+    }
+    // open the mask
+    list = setNewBlock(block, { revealed: true }, list);
+    // if click the mine, lost!;
+    if (block.mine) {
+      // game over!;
+      console.log("lost!");
+      list = list.map((row: BlockState[]) =>
+        row.map((cell) => ({ ...cell, revealed: true }))
+      );
+    } else {
+      // expand the zeros
+      list = expendZero(block, list);
+    }
+
+    dispatch({
+      type: "blocks",
+      payload: list,
+    });
+    if (state.status === "ready") {
+      dispatch({ type: "status", payload: "play" });
     }
     if (state.status !== "play" || block.flagged) {
       return;
     }
-    block.revealed = true;
   };
   const onContextMenu = (coords: BlockState) => {};
 
   // 当级别变化时候, 重新生成地图
   useLayoutEffect(() => {
-    setState({
-      status: "ready",
-      mineGenerated: false,
-      blocks: generateBlock(row, col),
-    });
+    dispatch({ type: "status", payload: "ready" });
+    dispatch({ type: "mineGenerated", payload: false });
+    dispatch({ type: "blocks", payload: generateBlock(row, col) });
   }, [level]);
   return {
     ...state,
