@@ -79,8 +79,55 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
     });
   };
 
+  const updateNewBlocks = (
+    newBlocks: Partial<BlockState>[],
+    blocks: BlockState[][]
+  ) => {
+    return blocks.map((row: BlockState[]) => {
+      return row.map((cell: BlockState) => {
+        const newBloack = newBlocks.find(
+          (block) => block.x === cell.x && block.y === cell.y
+        );
+        if (newBloack) {
+          return { ...cell, ...newBloack };
+        } else {
+          return cell;
+        }
+      });
+    });
+  };
+
   const expendZero = (block: BlockState, list: BlockState[][]) => {
-    return list;
+    let newList: BlockState[] = [];
+    function loopSiblingZero(cell: BlockState) {
+      if (cell.adjacentMines === 0) {
+        // current block siblings not has a mine block
+        const siblingsBlocks = siblings
+          .map(([sx, sy]) => {
+            const [x2, y2] = [cell.x + sx, cell.y + sy];
+            return list[y2]?.[x2];
+          })
+          .filter(Boolean)
+          .filter((siblingCell) => siblingCell.adjacentMines === 0)
+          .filter(
+            (c) =>
+              !newList.some(
+                (existCell) => existCell.x === c.x && existCell.y === c.y
+              )
+          )
+          .map((c) => ({ ...c, revealed: true }));
+        // 过滤出新增的
+        newList.push(...siblingsBlocks);
+        while (siblingsBlocks.length > 0) {
+          const s = siblingsBlocks.pop() as BlockState;
+          loopSiblingZero(s);
+        }
+      }
+    }
+    // list
+    loopSiblingZero(block);
+    // update
+    return updateNewBlocks(newList, list);
   };
 
   const generateMines = (clickedBlock: BlockState) => {
@@ -130,8 +177,12 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
     if (block.mine) {
       // game over!;
       console.log("lost!");
-      list = list.map((row: BlockState[]) =>
-        row.map((cell) => ({ ...cell, revealed: true }))
+      // list = list.map((row: BlockState[]) =>
+      //   row.map((cell) => ({ ...cell, revealed: true }))
+      // );
+      list = updateNewBlocks(
+        list.flat().map((cell) => ({ ...cell, revealed: true })),
+        list
       );
     } else {
       // expand the zeros
