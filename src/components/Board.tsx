@@ -12,7 +12,7 @@ export const Board: React.FC = () => {
   const [level, setLevel] = useLocalStorage("__game_level", GameLevels[0], {
     initializeWithValue: false,
   });
-  const { blocks, onClick } = useGame(level);
+  const { blocks, onClick, onContextMenu } = useGame(level);
   return (
     <Flex vertical gap={32}>
       <Flex vertical align="center" gap={16}>
@@ -50,11 +50,12 @@ export const Board: React.FC = () => {
                   onClick={() => {
                     onClick(cell);
                   }}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    onContextMenu(cell);
+                  }}
                   block={cell}
-                >
-                  {/* {cell.mine ? "💣" : `(x:${cell.x},y:${cell.y})`} */}
-                  {cell.mine ? "💣" : cell.adjacentMines}
-                </Mine>
+                />
               ))}
             </Flex>
           );
