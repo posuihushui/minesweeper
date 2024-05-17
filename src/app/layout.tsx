@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { Row, Card } from "antd";
 
 export const metadata: Metadata = {
   title: "minsweeper",
@@ -15,7 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AntdRegistry>{children}</AntdRegistry>
+        <AntdRegistry>
+          <Row gutter={24} justify="center">
+            <Card>{children}</Card>
+          </Row>
+        </AntdRegistry>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 import { BlockState } from "@/core/game";
 import { FlagOutlined } from "@ant-design/icons";
+import { useLayoutEffect, useState } from "react";
 
 const styleMap = {
   unopen: {
@@ -22,6 +23,7 @@ export const Mine: React.FC<{
   block: BlockState;
   onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }> = ({ onClick, block, onContextMenu }) => {
+  const [isDev, setDev] = useState(false);
   const getCurrentStyle = () => {
     if (block.flagged) {
       return styleMap.flagged;
@@ -32,7 +34,10 @@ export const Mine: React.FC<{
       return block.mine ? styleMap.mine : styleMap.normal;
     }
   };
-  const isDev = location.href.includes("dev=1");
+  useLayoutEffect(() => {
+    const isDev = window.location.href.includes("dev=1");
+    setDev(isDev);
+  }, []);
   return (
     <button
       onClick={onClick}
