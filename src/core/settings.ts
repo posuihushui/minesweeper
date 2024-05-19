@@ -5,7 +5,7 @@ export type LevelNames = (typeof GameLevels)[number];
 export type Settings = [number, number, number];
 
 export const GameSettings: Record<LevelNames, Settings> = {
-  beginner: [9, 10, 10],
-  intermediate: [16, 44, 20],
-  expert: [22, 99, 30],
+  beginner: [9, 9, 10],
+  intermediate: [16, 16, 40],
+  expert: [16, 30, 99],
 };

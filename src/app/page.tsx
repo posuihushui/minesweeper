@@ -1,41 +1,30 @@
 "use client";
-import { Button, Typography, Radio, Flex } from "antd";
-import { GameLevels } from "@/core/settings";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-const { Title } = Typography;
+import { Layout, Typography, Flex } from "antd";
+import { Game } from "@/components/Game";
+const { Header, Content, Footer } = Layout;
+const { Title, Text } = Typography;
 
 export default function Home() {
-  const [level, setLevel] = useState(GameLevels[0]);
-  const router = useRouter();
-
   return (
-    <Flex vertical align="center" gap={16}>
-      <Title>Minesweeper</Title>
-
-      <Radio.Group
-        value={level}
-        onChange={(e) => {
-          setLevel(e.target.value);
-        }}
-      >
-        {GameLevels.map((l) => (
-          <Radio.Button value={l} key={l}>
-            {l}
-          </Radio.Button>
-        ))}
-      </Radio.Group>
-      <Flex justify="center" gap={16}>
-        <Button
-          onClick={() => {
-            router.push(`/play?level=${level}`);
-          }}
-          type="primary"
+    <Layout style={{ width: "max-content", margin: "auto" }}>
+      <Header>
+        <Title
+          level={2}
+          style={{ color: "white", textAlign: "center", margin: "16px 0" }}
         >
-          Start Game
-        </Button>
-      </Flex>
-    </Flex>
+          MINSWEEPER
+        </Title>
+      </Header>
+      <Content style={{ padding: "32px" }}>
+        <Flex justify="center">
+          <Game />
+        </Flex>
+      </Content>
+      <Footer>
+        <Flex justify="center">
+          <Text>Game Status : </Text>
+        </Flex>
+      </Footer>
+    </Layout>
   );
 }

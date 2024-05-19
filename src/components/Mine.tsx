@@ -1,21 +1,16 @@
 "use client";
 import { BlockState } from "@/core/game";
 import { FlagOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import { useLayoutEffect, useState } from "react";
 
-const styleMap = {
-  unopen: {
-    backgroundColor: "#167aef",
-  },
-  mine: {
-    background: "#f0f0f0",
-  },
-  normal: {
-    background: "transparent",
-  },
-  flagged: {
-    // backgroundColor: "red",
-  },
+const baseSyle = {
+  width: "40px",
+  height: "40px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "18px",
 };
 
 export const Mine: React.FC<{
@@ -24,31 +19,27 @@ export const Mine: React.FC<{
   onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }> = ({ onClick, block, onContextMenu }) => {
   const [isDev, setDev] = useState(false);
-  const getCurrentStyle = () => {
-    if (block.flagged) {
-      return styleMap.flagged;
-    }
-    if (!block.revealed) {
-      return styleMap.unopen;
-    } else {
-      return block.mine ? styleMap.mine : styleMap.normal;
-    }
-  };
+
   useLayoutEffect(() => {
     const isDev = window.location.href.includes("dev=1");
     setDev(isDev);
   }, []);
   return (
-    <button
+    <Button
       onClick={onClick}
       onContextMenu={onContextMenu}
-      style={{
-        ...getCurrentStyle(),
-        border: "1px solid red",
-        width: 60,
-        height: 60,
-        cursor: block.revealed ? "default" : "pointer",
-      }}
+      style={Object.assign(
+        baseSyle,
+        block.revealed
+          ? {
+              cursor: "default",
+              border: "1px solid #91d5ff",
+              backgroundColor: "#e6f7ff",
+            }
+          : block.mine
+          ? { backgroundColor: "red", cursor: "default" }
+          : { cursor: "pointer" }
+      )}
     >
       {block.flagged ? (
         <FlagOutlined style={{ color: "red" }} />
@@ -61,7 +52,6 @@ export const Mine: React.FC<{
       ) : (
         ""
       )}
-      {/* {block.mine ? "💣" : block.adjacentMines} */}
-    </button>
+    </Button>
   );
 };
