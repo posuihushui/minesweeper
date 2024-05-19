@@ -45,13 +45,18 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
 
   const onClick = (block: BlockState) => {
     let list: BlockState[][] = state.blocks;
-    if (!state.mineGenerated) {
-      list = generateMines(block, mines, row, col, state.blocks);
-      dispatch({ type: "mineGenerated", payload: true });
+    let status = state.status;
+    if (state.status === "ready") {
+      status = "play";
     }
     if (block.flagged) {
       return;
     }
+    if (!state.mineGenerated) {
+      list = generateMines(block, mines, row, col, state.blocks);
+      dispatch({ type: "mineGenerated", payload: true });
+    }
+
     // open the mask
     if (!block.revealed) {
       list = setNewBlock(block, { revealed: true }, list);
@@ -59,10 +64,10 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
     // if click the mine, lost!;
     if (block.mine) {
       // game over!;
-      console.log("lost!");
       // list = list.map((row: BlockState[]) =>
       //   row.map((cell) => ({ ...cell, revealed: true }))
       // );
+      status = "lost";
       list = updateNewBlocks(
         list.flat().map((cell) => ({ ...cell, revealed: true })),
         list
@@ -72,16 +77,15 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
       list = expendZero(block, list);
     }
 
+    if (list.flat().filter((c) => !c.revealed).length === mines) {
+      status = "won";
+    }
+
     dispatch({
       type: "blocks",
       payload: list,
     });
-    if (state.status === "ready") {
-      dispatch({ type: "status", payload: "play" });
-    }
-    if (state.status !== "play" || block.flagged) {
-      return;
-    }
+    dispatch({ type: "status", payload: status });
   };
   const onContextMenu = (block: BlockState) => {
     if (state.status !== "play") {

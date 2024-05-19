@@ -1,8 +1,7 @@
 "use client";
-import { BlockState } from "@/core/game";
+import { BlockState, GameStatus } from "@/core/game";
 import { FlagOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import { useLayoutEffect, useState } from "react";
 
 const baseSyle = {
   width: "40px",
@@ -13,36 +12,50 @@ const baseSyle = {
   fontSize: "18px",
 };
 
+const styleMap = {
+  flagged: {
+    cursor: "pointer",
+    backgroundColor: "#fee2e2",
+  },
+  mine: {
+    cursor: "default",
+    backgroundColor: "#f0f0f0",
+  },
+  notMine: {
+    cursor: "default",
+    backgroundColor: "#fafaf9",
+  },
+  // 没有打开
+  normal: {
+    cursor: "pointer",
+    backgroundColor: "#e5e5e5",
+  },
+};
+const isDev = true;
+
 export const Mine: React.FC<{
   onClick: () => void;
   block: BlockState;
   onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }> = ({ onClick, block, onContextMenu }) => {
-  const [isDev, setDev] = useState(false);
-
-  useLayoutEffect(() => {
-    const isDev = window.location.href.includes("dev=1");
-    setDev(isDev);
-  }, []);
+  const getCurrentStyle = () => {
+    if (block.flagged) {
+      return styleMap.flagged;
+    }
+    if (block.revealed) {
+      return block.mine ? styleMap.mine : styleMap.notMine;
+    } else {
+      return styleMap.normal;
+    }
+  };
   return (
     <Button
       onClick={onClick}
       onContextMenu={onContextMenu}
-      style={Object.assign(
-        baseSyle,
-        block.revealed
-          ? {
-              cursor: "default",
-              border: "1px solid #91d5ff",
-              backgroundColor: "#e6f7ff",
-            }
-          : block.mine
-          ? { backgroundColor: "red", cursor: "default" }
-          : { cursor: "pointer" }
-      )}
+      style={Object.assign(baseSyle, getCurrentStyle())}
     >
       {block.flagged ? (
-        <FlagOutlined style={{ color: "red" }} />
+        <FlagOutlined style={{ color: "#991b1b" }} />
       ) : block.revealed || isDev ? (
         block.mine ? (
           "💣"

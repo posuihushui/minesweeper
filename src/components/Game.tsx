@@ -14,7 +14,6 @@ const { Text } = Typography;
 
 export const Game: React.FC = () => {
   const [level, setLevel] = useState(GameLevels[0]);
-  const [settingOpen, setOpen] = useState<boolean>(false);
   const { blocks, status, onClick, onContextMenu } = useGame(level);
 
   return (
@@ -36,7 +35,6 @@ export const Game: React.FC = () => {
             <ReloadOutlined />
           </Button>
           <Popover
-            open={settingOpen}
             title="Game Level Setting"
             trigger="click"
             content={
@@ -46,7 +44,6 @@ export const Game: React.FC = () => {
                     value={level}
                     onChange={(e) => {
                       setLevel(e.target.value);
-                      setOpen(false);
                     }}
                   >
                     {GameLevels.map((l) => (
@@ -59,12 +56,7 @@ export const Game: React.FC = () => {
               </div>
             }
           >
-            <Button
-              onClick={() => {
-                setOpen(true);
-              }}
-              icon={<SettingOutlined />}
-            ></Button>
+            <Button icon={<SettingOutlined />}></Button>
           </Popover>
         </Flex>
       </Flex>

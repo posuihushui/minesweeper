@@ -28,6 +28,8 @@ export const generateBlock = (row: number, col: number) =>
       y,
       adjacentMines: 0,
       revealed: false,
+      flagged: false,
+      mine: false,
     }))
   );
 
@@ -102,7 +104,9 @@ export const expendZero = (block: BlockState, list: BlockState[][]) => {
           return list[y2]?.[x2];
         })
         .filter(Boolean)
-        .filter((siblingCell) => siblingCell.adjacentMines === 0)
+        .filter(
+          (siblingCell) => siblingCell.adjacentMines === 0 && !siblingCell.mine
+        )
         .filter(
           (c) =>
             !newList.some(
