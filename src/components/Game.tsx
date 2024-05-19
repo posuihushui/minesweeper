@@ -2,7 +2,7 @@
 import { Flex, Button, Popover, Radio, Typography, Space } from "antd";
 import { Mine } from "./Mine";
 import { useGame } from "@/hooks/useGame";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GameSettings, GameLevels } from "@/core/settings";
 import {
   FieldTimeOutlined,
@@ -14,15 +14,15 @@ const { Text } = Typography;
 
 export const Game: React.FC = () => {
   const [level, setLevel] = useState(GameLevels[0]);
-  const { blocks, status, onClick, onContextMenu } = useGame(level);
-
+  const { seconds, blocks, status, onClick, onContextMenu, resetGame } =
+    useGame(level);
   return (
     <Flex vertical gap={32}>
       <Flex justify="space-between">
         <Flex gap={32}>
           <Space>
             <FieldTimeOutlined />
-            10s
+            <span>{seconds}s</span>
           </Space>
           <Space>
             <BugOutlined />
@@ -31,7 +31,7 @@ export const Game: React.FC = () => {
         </Flex>
 
         <Flex gap={8}>
-          <Button>
+          <Button onClick={resetGame}>
             <ReloadOutlined />
           </Button>
           <Popover
@@ -67,6 +67,7 @@ export const Game: React.FC = () => {
               <Flex key={yidx} gap={4}>
                 {row.map((cell, xidx) => (
                   <Mine
+                    gameOver={status === "lost" || status === "won"}
                     key={`${yidx}_${xidx}`}
                     onClick={() => {
                       onClick(cell);

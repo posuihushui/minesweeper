@@ -15,7 +15,7 @@ export default function Home() {
           MINSWEEPER
         </Title>
       </Header>
-      <Content style={{ padding: "32px" }}>
+      <Content style={{ padding: "32px 16px" }}>
         <Flex justify="center">
           <Game />
         </Flex>

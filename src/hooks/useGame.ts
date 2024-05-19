@@ -9,11 +9,13 @@ import {
   generateMines,
 } from "@/core/game";
 import { useLayoutEffect, useReducer } from "react";
+import useTimer from "@/hooks/useTimer";
 
 interface GameState {
   mineGenerated: boolean;
   status: GameStatus;
   blocks: BlockState[][];
+  seconds: number;
 }
 type ValueOfType<T, K> = K extends keyof T ? T[K] : never;
 
@@ -24,6 +26,7 @@ interface Action {
 interface ReturnType extends GameState {
   onClick: (coords: BlockState) => void;
   onContextMenu: (coords: BlockState) => void;
+  resetGame: () => void;
 }
 const reducer = (state: GameState, action: Action) => {
   return {
@@ -36,18 +39,21 @@ const getInitals = (row: number, col: number) => {
     mineGenerated: false,
     status: "ready" as GameStatus,
     blocks: generateBlock(row, col),
+    seconds: 0,
   };
 };
 
 export const useGame = (level = "beginner" as LevelNames): ReturnType => {
   const [row, col, mines] = GameSettings[level];
   const [state, dispatch] = useReducer(reducer, getInitals(row, col));
+  const { seconds, startTimer, pauseTimer, resetTimer } = useTimer();
 
   const onClick = (block: BlockState) => {
     let list: BlockState[][] = state.blocks;
     let status = state.status;
     if (state.status === "ready") {
       status = "play";
+      startTimer();
     }
     if (block.flagged) {
       return;
@@ -68,6 +74,7 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
       //   row.map((cell) => ({ ...cell, revealed: true }))
       // );
       status = "lost";
+      pauseTimer();
       list = updateNewBlocks(
         list.flat().map((cell) => ({ ...cell, revealed: true })),
         list
@@ -99,15 +106,20 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
       payload: setNewBlock(block, { flagged: !block.flagged }, state.blocks),
     });
   };
-
-  // 当级别变化时候, 重新生成地图
-  useLayoutEffect(() => {
+  const resetGame = () => {
     dispatch({ type: "status", payload: "ready" });
     dispatch({ type: "mineGenerated", payload: false });
     dispatch({ type: "blocks", payload: generateBlock(row, col) });
-  }, [level]);
+    resetTimer();
+  };
+
+  // 当级别变化时候, 重新生成地图
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(resetGame, [level]);
   return {
     ...state,
+    seconds,
+    resetGame,
     onClick,
     onContextMenu,
   };

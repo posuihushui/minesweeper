@@ -1,5 +1,5 @@
 "use client";
-import { BlockState, GameStatus } from "@/core/game";
+import { BlockState } from "@/core/game";
 import { FlagOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 
@@ -31,13 +31,14 @@ const styleMap = {
     backgroundColor: "#e5e5e5",
   },
 };
-const isDev = true;
+const isDev = false;
 
 export const Mine: React.FC<{
   onClick: () => void;
   block: BlockState;
+  gameOver: boolean;
   onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}> = ({ onClick, block, onContextMenu }) => {
+}> = ({ onClick, block, onContextMenu, gameOver }) => {
   const getCurrentStyle = () => {
     if (block.flagged) {
       return styleMap.flagged;
@@ -55,7 +56,22 @@ export const Mine: React.FC<{
       style={Object.assign(baseSyle, getCurrentStyle())}
     >
       {block.flagged ? (
-        <FlagOutlined style={{ color: "#991b1b" }} />
+        <>
+          <FlagOutlined
+            style={{
+              color: "#991b1b",
+            }}
+          />
+          {gameOver && block.mine && (
+            <span
+              style={{
+                fontSize: 10,
+              }}
+            >
+              💣
+            </span>
+          )}
+        </>
       ) : block.revealed || isDev ? (
         block.mine ? (
           "💣"
