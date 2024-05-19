@@ -33,7 +33,7 @@ export const Game: React.FC = () => {
             <span>{seconds}s</span>
           </Space>
           <Space>
-            <BugOutlined />
+            💣
             {GameSettings[level]?.[2]}
           </Space>
         </Flex>
