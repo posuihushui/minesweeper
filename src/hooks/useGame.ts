@@ -7,6 +7,7 @@ import {
   updateNewBlocks,
   expendZero,
   generateMines,
+  quickOpen,
 } from "@/core/game";
 import { useLayoutEffect, useReducer } from "react";
 import useTimer from "@/hooks/useTimer";
@@ -25,6 +26,7 @@ interface Action {
 }
 interface ReturnType extends GameState {
   onClick: (coords: BlockState) => void;
+  onDblClick: (coords: BlockState) => void;
   onContextMenu: (coords: BlockState) => void;
   resetGame: () => void;
 }
@@ -106,6 +108,26 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
       payload: setNewBlock(block, { flagged: !block.flagged }, state.blocks),
     });
   };
+
+  const onDblClick = (block: BlockState) => {
+    if (state.status !== "play") return;
+    let list: BlockState[][] = state.blocks;
+    let newList = quickOpen(block, state.blocks);
+    if (newList.some((c) => c.mine)) {
+      // 有地雷
+      dispatch({ type: "status", payload: "lost" });
+      pauseTimer();
+      list = updateNewBlocks(
+        list.flat().map((cell) => ({ ...cell, revealed: true })),
+        list
+      );
+    }
+    dispatch({
+      type: "blocks",
+      payload: updateNewBlocks(newList, list),
+    });
+  };
+
   const resetGame = () => {
     dispatch({ type: "status", payload: "ready" });
     dispatch({ type: "mineGenerated", payload: false });
@@ -121,6 +143,7 @@ export const useGame = (level = "beginner" as LevelNames): ReturnType => {
     seconds,
     resetGame,
     onClick,
+    onDblClick,
     onContextMenu,
   };
 };

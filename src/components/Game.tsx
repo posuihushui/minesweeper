@@ -2,7 +2,7 @@
 import { Flex, Button, Popover, Radio, Typography, Space } from "antd";
 import { Mine } from "./Mine";
 import { useGame } from "@/hooks/useGame";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GameSettings, GameLevels } from "@/core/settings";
 import {
   FieldTimeOutlined,
@@ -14,8 +14,16 @@ const { Text } = Typography;
 
 export const Game: React.FC = () => {
   const [level, setLevel] = useState(GameLevels[0]);
-  const { seconds, blocks, status, onClick, onContextMenu, resetGame } =
-    useGame(level);
+  const {
+    seconds,
+    blocks,
+    status,
+    onClick,
+    onDblClick,
+    onContextMenu,
+    resetGame,
+  } = useGame(level);
+
   return (
     <Flex vertical gap={32}>
       <Flex justify="space-between">
@@ -75,6 +83,9 @@ export const Game: React.FC = () => {
                     onContextMenu={(event) => {
                       event.preventDefault();
                       onContextMenu(cell);
+                    }}
+                    onDblClick={() => {
+                      onDblClick(cell);
                     }}
                     block={cell}
                   />

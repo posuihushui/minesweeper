@@ -35,10 +35,11 @@ const isDev = false;
 
 export const Mine: React.FC<{
   onClick: () => void;
+  onDblClick: () => void;
   block: BlockState;
   gameOver: boolean;
   onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}> = ({ onClick, block, onContextMenu, gameOver }) => {
+}> = ({ onClick, block, onContextMenu, gameOver, onDblClick }) => {
   const getCurrentStyle = () => {
     if (block.flagged) {
       return styleMap.flagged;
@@ -53,6 +54,7 @@ export const Mine: React.FC<{
     <Button
       onClick={onClick}
       onContextMenu={onContextMenu}
+      onDoubleClick={onDblClick}
       style={Object.assign(baseSyle, getCurrentStyle())}
     >
       {block.flagged ? (

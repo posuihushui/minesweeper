@@ -167,3 +167,28 @@ export const generateMines = (
   });
   return newBlocksWithSiblings;
 };
+
+export const quickOpen = (block: BlockState, blocks: BlockState[][]) => {
+  const siblingMarkFlagged =
+    siblings
+      .map(([sx, sy]) => {
+        const [x2, y2] = [block.x + sx, block.y + sy];
+        // 通过坐标来取, 直接取值，溢出会是undefined
+        return blocks?.[y2]?.[x2];
+      })
+      .filter(Boolean)
+      .filter((block) => block.flagged).length > 0;
+
+  if (siblingMarkFlagged) {
+    return siblings
+      .map(([sx, sy]) => {
+        const [x2, y2] = [block.x + sx, block.y + sy];
+        // 通过坐标来取, 直接取值，溢出会是undefined
+        return blocks?.[y2]?.[x2];
+      })
+      .filter(Boolean)
+      .map((block) => ({ ...block, revealed: true }));
+  } else {
+    return [];
+  }
+};
