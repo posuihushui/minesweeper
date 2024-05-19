@@ -1,21 +1,21 @@
 "use client";
-import { Flex, Button, Popover, Radio, Space } from "antd";
+import { Flex, Button, Popover, Radio, Typography, Space } from "antd";
 import { Mine } from "./Mine";
 import { useGame } from "@/hooks/useGame";
 import { useState } from "react";
 import { GameSettings, GameLevels } from "@/core/settings";
-
 import {
   FieldTimeOutlined,
   BugOutlined,
   ReloadOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
+const { Text } = Typography;
 
 export const Game: React.FC = () => {
   const [level, setLevel] = useState(GameLevels[0]);
   const [settingOpen, setOpen] = useState<boolean>(false);
-  const { blocks, onClick, onContextMenu } = useGame(level);
+  const { blocks, status, onClick, onContextMenu } = useGame(level);
 
   return (
     <Flex vertical gap={32}>
@@ -91,6 +91,9 @@ export const Game: React.FC = () => {
           })}
         </Flex>
       </div>
+      <Flex justify="center">
+        <Text>Game Status : {status}</Text>
+      </Flex>
     </Flex>
   );
 };

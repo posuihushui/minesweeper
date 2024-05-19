@@ -1,8 +1,8 @@
 "use client";
 import { Layout, Typography, Flex } from "antd";
 import { Game } from "@/components/Game";
-const { Header, Content, Footer } = Layout;
-const { Title, Text } = Typography;
+const { Header, Content } = Layout;
+const { Title } = Typography;
 
 export default function Home() {
   return (
@@ -20,11 +20,6 @@ export default function Home() {
           <Game />
         </Flex>
       </Content>
-      <Footer>
-        <Flex justify="center">
-          <Text>Game Status : </Text>
-        </Flex>
-      </Footer>
     </Layout>
   );
 }
